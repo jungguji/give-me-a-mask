@@ -19,20 +19,20 @@ public class StoresServiceImpl implements StoresService {
 
     private static final String MAIN_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByAddr/json";
     
-    public List<Stores> getStoresByAddress(String address) {
-        RestTemplate restTemplate = new RestTemplate();
-        
+    public List<Stores> getStoresByAddress(String address, String extraAddress) {
         String url = MAIN_URL;
         
-        if (!StringUtils.isEmpty(address)) {
-            url += "?address=" + address;
+        String addr = setAddress(address, extraAddress);
+        if (!StringUtils.isEmpty(addr)) {
+            url += "?address=" + addr;
         }
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType( MediaType.APPLICATION_JSON );
         
-        System.out.println(url.toString());
+        RestTemplate restTemplate = new RestTemplate();
         Store stores = restTemplate.getForObject(url, Store.class);
+        
         List<Stores> storeList = stores.getStores();
         
         convertRemainStats(storeList);
@@ -43,6 +43,78 @@ public class StoresServiceImpl implements StoresService {
         
         return storeList;
     }
+    
+    private String setAddress(String address, String extraAddress) {
+        address = address.trim();
+        extraAddress = extraAddress.trim();
+        
+        StringBuilder sb = new StringBuilder();
+        
+        String[] array = address.split(" ");
+        
+        array[0] = convertState(array[0]);
+        
+        if (!StringUtils.isEmpty(extraAddress)) {
+            array[2] = extraAddress;
+        }
+        
+        sb.append(array[0]);
+        sb.append(" ");
+        sb.append(array[1]);
+        sb.append(" ");
+        sb.append(array[2]);
+        
+        return sb.toString();
+    }
+    
+    private String convertState(String state) {
+        String result = "";
+        switch (state) {
+            case "서울":
+                result = "서울특별시";
+                break;
+                
+            case "부산":
+            case "대구":
+            case "인천":
+            case "광주":
+            case "대전":
+            case "울산":
+                result = state + "광역시";
+                break;
+    
+            case "경기":
+                result = "경기도";
+                break;
+            case "강원":
+                result = "강원도";
+                break;
+            case "경북":
+                result = "경상북도";
+                break;
+            case "경남":
+                result = "경상남도";
+                break;
+            case "전북":
+                result = "전라북도";
+                break;
+            case "전남":
+                result = "전라남도";
+                break;
+            case "세종":
+                result = "세종특별자치시";
+                break;
+            case "제주":
+                result = "제주특별자치도";
+                break;
+                
+            default:
+                break;
+        }
+        
+        return result;
+    }
+    
     
     private List<Stores> convertRemainStats(List<Stores> storeList) {
         

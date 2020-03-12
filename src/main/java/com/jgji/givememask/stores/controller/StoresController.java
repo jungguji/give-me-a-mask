@@ -28,11 +28,10 @@ public class StoresController {
     
     @GetMapping(value="/test", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<List<Stores>> test(@RequestParam(value="address") String address) throws JsonProcessingException {
-        System.out.println("address >>> " + address);
-        System.out.println("@@@@@ 서비스 진입 @@@@@@");
+    public ResponseEntity<List<Stores>> test(@RequestParam(value="address") String address
+            , @RequestParam(value="extraAddress") String extraAddress) throws JsonProcessingException {
         
-        List<Stores> list = service.getStoresByAddress(address);
+        List<Stores> list = service.getStoresByAddress(address, extraAddress);
         
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
