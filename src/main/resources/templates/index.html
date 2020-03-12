@@ -2,33 +2,164 @@
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml" 
     xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>마스크 내놔</title>
+    <meta charset="UTF-8">
+    <title>마스크 내놔</title>
+    
+    <link rel="stylesheet" th:href="@{/lib/jui/dist/ui.min.css}" />
+    <link rel="stylesheet" th:href="@{/lib/jui/dist/ui-jennifer.min.css}" />
+    <link rel="stylesheet" th:href="@{/lib/jui-grid/dist/grid-jennifer.css}" />
+    <link th:href="@{/webjars/bootstrap/4.4.1/css/bootstrap.min.css}" rel="stylesheet"></link>
+    <script th:src="@{/webjars/bootstrap/4.4.1/js/bootstrap.min.js}"></script>
+    <script th:src="@{/webjars/jquery/2.1.3/dist/jquery.min.js}"></script>
+    <script th:src="@{/lib/jui-core/dist/core.min.js}"></script>
+    <script th:src="@{/lib/jui/dist/ui.min.js}"></script>
+    <script th:src="@{/lib/jui-grid/dist/grid.js}"></script>
 </head>
 <body>
-        <label th:text="마스크내놔"></label>
-        <input type="text" name="address" />
-        <button name="button" onclick="test()">검색</button>
+    <div id="notice" style="text-align: center">
+        <h1> 공지사항 </h1>
+        <p class="lead">
+            1. 이번 주는 서비스의 안정적 운영을 지켜보기 위하여 베타서비스 입니다.
+            <br />
+            2. 서비스되는 재고 현황 정보는 데이터 처리 및 전송으로 인해 실제 현장 판매처의
+            현황과 5분~10분 정도의 차이가 있습니다.
+            <br />
+            3. 일부 약국에서는 번호표 배부 후 판매하는 약국도 있어 서비스되는
+            정보가 번호표 배부 현황을 반영하지는 못하고 있습니다.
+            <br />
+            4. 마스크 현황 정보는 성인용 마스크를 대상으로 합니다.
+            <br />
+            5. 마스크 판매정보 수집DB 안정화 등 작업으로 인해 매일 갱신되는
+            정보는 08:00~23:00까지 운영됩니다.
+            <br />
+            6. 식약처 공적마스크 구매 안내 :
+            <a href="http://blog.naver.com/kfdazzang/221839489769">http://blog.naver.com/kfdazzang/221839489769 </a>
+            <br />
+            7. 마지막으로 공적 마스크 서비스 시 어려운 환경에서도 일선에서 공헌해 주시는
+            약사님, 우체국 종사자분, 하나로 마트(예정) 분들께도 감사와 응원 드립니다.
+        </p>
+    </div>
+    <div class="custom-control custom-radio custom-control-inline">
+      <input type="radio" id="customRadioInline1" name="city" class="custom-control-input" value="서울특별시" checked>
+      <label class="custom-control-label" for="customRadioInline1">서울시</label>
+    </div>
+    <div class="custom-control custom-radio custom-control-inline">
+      <input type="radio" id="customRadioInline2" name="city" class="custom-control-input" value="부산광역시">
+      <label class="custom-control-label" for="customRadioInline2">부산시</label>
+    </div>
     
-    <script th:src="@{/webjars/jquery/2.1.3/dist/jquery.min.js}"></script>
+    <br />
+    <label th:text="마스크내놔"></label>
+    <input type="text" name="address" />
+    <button name="button" onclick="test()">검색</button>
+
+    <div id="table">
+        <table id="table_8" class="table classic">
+            <thead>
+            <tr>
+                <th width="50px">No</th>
+                <th th:text="이름"> 단어</th>
+                <th th:text="주소">뜻</th>
+                <th th:text="갯수">다음 시험 일자</th>
+                <th th:text="입고시간">다음 시험 일자</th>
+                <th th:text="업데이트시간">다음 시험 일자</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    
+    <script id="tpl_row" data-jui="#table_8" data-tpl="row" type="text/template">
+        <tr style="cursor: pointer;">
+            <td><!= row.index !></td>
+            <td><!= name !></td>
+            <td><!= addr !></td>
+            <td name="remain"><!= remain_stat !></td>
+            <td><!= stock_at !></td>
+            <td><!= created_at !></td>
+        </tr>
+    </script>
+    
     <script th:inline="javascript">
-        function test() {
-        	
-        	let data = {
-                    address : document.querySelector("input[name=address]").value
+    
+        window.onload = function(){
+            drawGrid();
+        }
+        
+        document.querySelector("input[name=address]").addEventListener("keydown", key => {
+            if (key.keyCode == 13) {
+                test();
             }
-        	
+        });
+        
+        function test() {
+            var radioVal = $('input[name="city"]:checked').val();
+            
+            let value = radioVal + " " + document.querySelector("input[name=address]").value;
+            
+            let data = {
+                    address : value
+            }
+            
             $.ajax({
                 type:"GET"
                 , url: "/test"
                 , data: data
-                , dataType : 'text'
+                , contentType: "application/json"
+                , dataType : 'JSON'
                 , cache: false
+                , async: false
                 , success: function(data) {
-                    alert(data);
+                    drawGrid(data);
+                }
+            });
+            
+            setColor();
+        }
+        
+        function drawGrid(data) {
+            jui.ready([ "grid.table" ], function(table) {
+                table_8 = table("#table_8", {
+                    fields: [ null, "name", "addr", "remain_stat", "stock_at", "created_at"],
+                    data: data,
+                    resize: true,
+                    sort: true,
+                    event: {
+                        sort: function(column, e) {
+                            setColor();
+                        }
+                    },
+                    tpl: {
+                        row: $("#tpl_row").html()
+                    }
+                });
+            });
+        }
+        
+        function setColor() {
+            const remains = document.getElementsByName("remain");
+            remains.forEach(function(remain) {
+                if (remain.innerHTML === "3") {
+                    remain.innerHTML = "<b> 없음 </b>";
+                    remain.style.backgroundColor = "gray";
+//                     remain.parentElement.style.backgroundColor = "gray";
+                } else if (remain.innerHTML === "2") {
+                    remain.innerHTML = "<b> 부족 </b>";
+                    remain.style.backgroundColor = "red";
+//                     remain.parentElement.style.backgroundColor = "red";
+                } else if (remain.innerHTML === "1") {
+                    remain.innerHTML = "<b> 보통 </b>";
+                    remain.style.backgroundColor = "yellow";
+//                     remain.parentElement.style.backgroundColor = "yellow";
+                } else if (remain.innerHTML === "0") {
+                    remain.innerHTML = "<b> 충분 </b>";
+                    remain.style.backgroundColor = "greenyellow";
+//                     remain.parentElement.style.backgroundColor = "greenyellow";
                 }
             });
         }
+        
     </script>
 </body>
 </html>
