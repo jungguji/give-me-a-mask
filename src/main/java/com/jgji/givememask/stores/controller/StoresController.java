@@ -23,7 +23,7 @@ public class StoresController {
     
     @GetMapping(value="/")
     public String home(Model model) {
-        return "/index";
+        return "index";
     }
     
     @GetMapping(value="/test", produces = "application/json")
