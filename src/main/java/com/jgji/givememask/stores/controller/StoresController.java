@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jgji.givememask.stores.model.Store.Stores;
 import com.jgji.givememask.stores.service.StoresService;
 
@@ -28,15 +26,11 @@ public class StoresController {
         return "/index";
     }
     
-    @GetMapping(value="/test")
+    @GetMapping(value="/test", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<List<Stores>> test(@RequestParam(value="address") String address) {
+    public ResponseEntity<List<Stores>> test(@RequestParam(value="address") String address) throws JsonProcessingException {
         System.out.println("address >>> " + address);
         System.out.println("@@@@@ 서비스 진입 @@@@@@");
-        
-        ObjectMapper objMapper = new ObjectMapper();
-        objMapper.registerModule(new JavaTimeModule());
-        objMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         
         List<Stores> list = service.getStoresByAddress(address);
         
