@@ -35,6 +35,7 @@ public class Store {
         String stock_at;
         String remain_stat;
         String created_at;
+        String distance;
         
         public String getCode() {
             return code;
@@ -89,6 +90,12 @@ public class Store {
         }
         public void setCreated_at(String created_at) {
             this.created_at = created_at;
+        }
+        public String getDistance() {
+            return distance;
+        }
+        public void setDistance(String distance) {
+            this.distance = distance;
         }
         
         @Override

@@ -74,6 +74,7 @@
                 <th th:text="이름"> 단어</th>
                 <th th:text="주소">뜻</th>
                 <th th:text="갯수">다음 시험 일자</th>
+                <th >거리(Km)</th>
                 <th th:text="입고시간">다음 시험 일자</th>
                 <th th:text="업데이트시간">다음 시험 일자</th>
             </tr>
@@ -90,6 +91,7 @@
             <td><!= name !></td>
             <td><!= addr !></td>
             <td name="remain"><!= remain_stat !></td>
+            <td><!= distance !></td>
             <td><!= stock_at !></td>
             <td><!= created_at !></td>
         </tr>
@@ -132,7 +134,7 @@
         function drawGrid(data) {
             jui.ready([ "grid.table" ], function(table) {
                 table_8 = table("#table_8", {
-                    fields: [ null, "name", "addr", "remain_stat", "stock_at", "created_at"],
+                    fields: [ null, "name", "addr", "remain_stat", "distance", "stock_at", "created_at"],
                     data: data,
                     resize: true,
                     sort: true,

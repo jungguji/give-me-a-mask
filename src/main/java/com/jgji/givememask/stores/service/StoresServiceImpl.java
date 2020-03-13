@@ -1,11 +1,16 @@
 package com.jgji.givememask.stores.service;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,33 +18,35 @@ import org.springframework.web.client.RestTemplate;
 
 import com.jgji.givememask.stores.model.Store;
 import com.jgji.givememask.stores.model.Store.Stores;
+import com.jgji.givememask.util.Haversine;
 
 @Service("StoresService")
 public class StoresServiceImpl implements StoresService {
 
-    private static final String MAIN_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByAddr/json";
-    
+    private static final String MASK_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByAddr/json";
+    private static final String KAKAO_LOCAL_MAP_URL = "https://dapi.kakao.com/v2/local/search/address.json";
+    private static final String KAKAO_APP_KEY = "KakaoAK 71915571a3719081dfad3ecca9197242";
+    private static final NumberFormat formatter = new DecimalFormat("#0.00000");    
+   
     public List<Stores> getStoresByAddress(String address, String extraAddress) {
-        String url = MAIN_URL;
+        String url = MASK_URL;
+        
+        Map<String, String> userLocationMap = getUserAddressLocation(address);
         
         String addr = setAddress(address, extraAddress);
-        if (!StringUtils.isEmpty(addr)) {
-            url += "?address=" + addr;
-        }
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType( MediaType.APPLICATION_JSON );
+        url += "?address=" + addr;
         
         RestTemplate restTemplate = new RestTemplate();
         Store stores = restTemplate.getForObject(url, Store.class);
         
         List<Stores> storeList = stores.getStores();
         
-        convertRemainStats(storeList);
-        
         for (int i = 0; i < storeList.size(); i++) {
             System.out.println(storeList.get(i));
         }
+        
+        convertRemainStats(storeList);
+        sort(storeList, userLocationMap);
         
         return storeList;
     }
@@ -53,6 +60,9 @@ public class StoresServiceImpl implements StoresService {
         String[] array = address.split(" ");
         
         array[0] = convertState(array[0]);
+        if ("세종특별자치시".equals(array[0])) {
+            return "세종특별자치시";
+        }
         
         if (!StringUtils.isEmpty(extraAddress)) {
             array[2] = extraAddress;
@@ -68,7 +78,7 @@ public class StoresServiceImpl implements StoresService {
     }
     
     private String convertState(String state) {
-        String result = "";
+        String result = state;
         switch (state) {
             case "서울":
                 result = "서울특별시";
@@ -107,9 +117,6 @@ public class StoresServiceImpl implements StoresService {
             case "제주":
                 result = "제주특별자치도";
                 break;
-                
-            default:
-                break;
         }
         
         return result;
@@ -140,16 +147,44 @@ public class StoresServiceImpl implements StoresService {
               stores.setRemain_stat(remainStats);
           }
         
+        return storeList;
+    }
+    
+    private void sort(List<Stores> storeList, Map<String, String> userLocation) {
+        for (Stores store : storeList) {
+            Double distance = Haversine.distance(Double.parseDouble(userLocation.get("y")), Double.parseDouble(userLocation.get("x")), store.getLat(), store.getLng());
+            
+            store.setDistance(formatter.format(distance));
+        }
+        
         Collections.sort(storeList, new Comparator<Stores>() {
             
             @Override
             public int compare(Stores stores1, Stores stores2) { 
-                return stores1.getRemain_stat().compareTo(stores2.getRemain_stat()); 
+                return stores1.getDistance().compareTo(stores2.getDistance());
            }
-            
         });
-
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Map<String, String> getUserAddressLocation(String address) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType( MediaType.APPLICATION_JSON );
+        headers.add(HttpHeaders.AUTHORIZATION, KAKAO_APP_KEY);
         
-        return storeList;
+        String url = KAKAO_LOCAL_MAP_URL + "?query=" + address;
+        System.out.println("KAKAO URL >> " + url);
+        
+        HttpEntity entity = new HttpEntity(headers);
+        
+        RestTemplate restTemplate = new RestTemplate();
+        
+        HttpEntity<Map> test = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        
+        Map<String, List<Map>> map = test.getBody();
+        
+        Map<String, String> document = map.get("documents").get(0);
+        
+        return document;
     }
 }
