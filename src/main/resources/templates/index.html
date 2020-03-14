@@ -62,7 +62,6 @@
         <div style="margin-bottom: 1rem;">
             <label th:text="주소"></label>
             <input type="text" name="address" class="form-control" style="width:50%; display: initial; text-align: center" />
-            <button id="button" onclick="search()" class="btn btn-info button-height" >검색</button>
         </div>
     </div>
 
@@ -102,12 +101,6 @@
         window.onload = function(){
             drawGrid();
         }
-        
-        document.querySelector("input[name=address]").addEventListener("keydown", key => {
-            if (key.keyCode == 13) {
-            	search();
-            }
-        });
         
         function search() {
             let data = {
@@ -153,7 +146,10 @@
         function setColor() {
             const remains = document.getElementsByName("remain");
             remains.forEach(function(remain) {
-                if (remain.innerHTML === "3") {
+            	if (remain.innerHTML === "4") {
+            		remain.innerHTML = "<b> 판매중지 </b>";
+                    remain.style.backgroundColor = "gray";
+            	} else if (remain.innerHTML === "3") {
                     remain.innerHTML = "<b> 없음 </b>";
                     remain.style.backgroundColor = "gray";
                 } else if (remain.innerHTML === "2") {

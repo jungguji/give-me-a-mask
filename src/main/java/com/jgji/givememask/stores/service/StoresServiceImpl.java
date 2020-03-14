@@ -134,7 +134,9 @@ public class StoresServiceImpl implements StoresService {
                   continue;
               }
               
-              if ("empty".equals(remainStats)) {
+              if ("break".equals(remainStats)) {
+                  remainStats = "4";
+              } else if ("empty".equals(remainStats)) {
                   remainStats = "3";
               } else if ("few".equals(remainStats)) {
                   remainStats = "2";
