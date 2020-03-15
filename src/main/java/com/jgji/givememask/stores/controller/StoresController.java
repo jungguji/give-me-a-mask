@@ -26,7 +26,7 @@ public class StoresController {
         return "index";
     }
     
-    @GetMapping(value="/test", produces = "application/json")
+    @GetMapping(value="/stores", produces = "application/json")
     @ResponseBody
     public ResponseEntity<List<Stores>> test(@RequestParam(value="address") String address
             , @RequestParam(value="extraAddress") String extraAddress) throws JsonProcessingException {
