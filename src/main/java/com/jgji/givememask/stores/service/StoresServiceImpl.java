@@ -48,7 +48,33 @@ public class StoresServiceImpl implements StoresService {
         convertRemainStats(storeList);
         sort(storeList, userLocationMap);
         
+//        Stores local = new Stores();
+//        local.setLat(Double.parseDouble(userLocationMap.get("y")));
+//        local.setLng(Double.parseDouble(userLocationMap.get("x")));
+//        
+//        storeList.add(0, local);
+        
         return storeList;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Map<String, String> getUserAddressLocation(String address) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType( MediaType.APPLICATION_JSON );
+        headers.add(HttpHeaders.AUTHORIZATION, KAKAO_APP_KEY);
+        
+        String url = KAKAO_LOCAL_MAP_URL + "?query=" + address;
+        
+        HttpEntity entity = new HttpEntity(headers);
+        
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Map> test = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        
+        Map<String, List<Map>> map = test.getBody();
+        
+        Map<String, String> document = map.get("documents").get(0);
+        
+        return document;
     }
     
     private String setAddress(String address, String extraAddress) {
@@ -166,27 +192,5 @@ public class StoresServiceImpl implements StoresService {
                 return stores1.getDistance().compareTo(stores2.getDistance());
            }
         });
-    }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Map<String, String> getUserAddressLocation(String address) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType( MediaType.APPLICATION_JSON );
-        headers.add(HttpHeaders.AUTHORIZATION, KAKAO_APP_KEY);
-        
-        String url = KAKAO_LOCAL_MAP_URL + "?query=" + address;
-        System.out.println("KAKAO URL >> " + url);
-        
-        HttpEntity entity = new HttpEntity(headers);
-        
-        RestTemplate restTemplate = new RestTemplate();
-        
-        HttpEntity<Map> test = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-        
-        Map<String, List<Map>> map = test.getBody();
-        
-        Map<String, String> document = map.get("documents").get(0);
-        
-        return document;
     }
 }
