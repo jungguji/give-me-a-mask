@@ -6,10 +6,6 @@ public class Haversine {
     public static double distance(double startLat, double startLong,
                                   double endLat, double endLong) {
 
-        System.out.println("startLat >> " + startLat);
-        System.out.println("startLong >> " + startLong);
-        System.out.println("endLat >> " + endLat);
-        System.out.println("endLong >> " + endLong);
         double toRadian = Math.PI / 180;
 
         double deltaLatitude = Math.abs(startLat - endLat) * toRadian;
