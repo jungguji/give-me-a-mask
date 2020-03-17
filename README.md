@@ -1,6 +1,6 @@
 # Give me a mask
 
-주소를 검색해서 해당 주소에서 가까운 순으로 마스크 판매점을 보여줍니다.
+주소를 검색해서 해당 주소에서 반경 1.5km 내에 가까운 순으로 마스크 판매점을 보여줍니다.
 
 서비스되는 재고 현황 정보는 데이터 처리 및 전송으로 인해 실제 현장 판매처의 현황과 5분~10분 정도의 차이가 있습니다.
 
@@ -11,10 +11,13 @@ https://give-me-a-mask.herokuapp.com/
 2. 주소 검색 후 선택
 3. 결과 확인
 
-![image](https://user-images.githubusercontent.com/20533433/76606906-6daf0180-6556-11ea-814d-2d7da4466c59.png)
+![image](https://user-images.githubusercontent.com/20533433/76833133-28e4dc80-686e-11ea-8681-bcec1b476d2d.png)
+
 
 ## 업데이트 내역
 
+* 1.1.0
+   * 카카오맵 API 추가
 * 1.0.0
     * 첫 출시
     
