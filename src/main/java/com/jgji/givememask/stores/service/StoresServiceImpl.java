@@ -45,11 +45,11 @@ public class StoresServiceImpl implements StoresService {
         convertRemainStats(storeList);
         sort(storeList, userLocationMap);
         
-//        Stores local = new Stores();
-//        local.setLat(Double.parseDouble(userLocationMap.get("y")));
-//        local.setLng(Double.parseDouble(userLocationMap.get("x")));
-//        
-//        storeList.add(0, local);
+        Stores local = new Stores();
+        local.setLat(Double.parseDouble(userLocationMap.get("y")));
+        local.setLng(Double.parseDouble(userLocationMap.get("x")));
+        
+        storeList.add(0, local);
         
         return storeList;
     }
