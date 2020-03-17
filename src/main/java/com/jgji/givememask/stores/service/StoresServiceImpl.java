@@ -23,18 +23,15 @@ import com.jgji.givememask.util.Haversine;
 @Service("StoresService")
 public class StoresServiceImpl implements StoresService {
 
-    private static final String MASK_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByAddr/json";
+    private static final String MASK_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json";
     private static final String KAKAO_LOCAL_MAP_URL = "https://dapi.kakao.com/v2/local/search/address.json";
     private static final String KAKAO_APP_KEY = "KakaoAK 71915571a3719081dfad3ecca9197242";
     private static final NumberFormat formatter = new DecimalFormat("#0.00000");    
    
     public List<Stores> getStoresByAddress(String address, String extraAddress) {
-        String url = MASK_URL;
-        
         Map<String, String> userLocationMap = getUserAddressLocation(address);
         
-        String addr = setAddress(address, extraAddress);
-        url += "?address=" + addr;
+        String url = MASK_URL + getURI(userLocationMap);
         
         RestTemplate restTemplate = new RestTemplate();
         Store stores = restTemplate.getForObject(url, Store.class);
@@ -77,77 +74,18 @@ public class StoresServiceImpl implements StoresService {
         return document;
     }
     
-    private String setAddress(String address, String extraAddress) {
-        address = address.trim();
-        extraAddress = extraAddress.trim();
+    private String getURI(Map<String, String> userLocationMap) {
+        final int radius = 1500;
+        Double lat = Double.parseDouble(userLocationMap.get("y"));
+        Double lng = Double.parseDouble(userLocationMap.get("x"));
         
         StringBuilder sb = new StringBuilder();
-        
-        String[] array = address.split(" ");
-        
-        array[0] = convertState(array[0]);
-        if ("세종특별자치시".equals(array[0])) {
-            return "세종특별자치시";
-        }
-        
-        if (!StringUtils.isEmpty(extraAddress)) {
-            array[2] = extraAddress;
-        }
-        
-        sb.append(array[0]);
-        sb.append(" ");
-        sb.append(array[1]);
-        sb.append(" ");
-        sb.append(array[2]);
+        sb.append("?lat=").append(lat);
+        sb.append("&lng=").append(lng);
+        sb.append("&m=").append(radius);
         
         return sb.toString();
     }
-    
-    private String convertState(String state) {
-        String result = state;
-        switch (state) {
-            case "서울":
-                result = "서울특별시";
-                break;
-                
-            case "부산":
-            case "대구":
-            case "인천":
-            case "광주":
-            case "대전":
-            case "울산":
-                result = state + "광역시";
-                break;
-    
-            case "경기":
-                result = "경기도";
-                break;
-            case "강원":
-                result = "강원도";
-                break;
-            case "경북":
-                result = "경상북도";
-                break;
-            case "경남":
-                result = "경상남도";
-                break;
-            case "전북":
-                result = "전라북도";
-                break;
-            case "전남":
-                result = "전라남도";
-                break;
-            case "세종":
-                result = "세종특별자치시";
-                break;
-            case "제주":
-                result = "제주특별자치도";
-                break;
-        }
-        
-        return result;
-    }
-    
     
     private List<Stores> convertRemainStats(List<Stores> storeList) {
         
