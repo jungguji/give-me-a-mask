@@ -26,6 +26,7 @@ public class StoresServiceImpl implements StoresService {
     private static final String MASK_URL = "https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json";
     private static final String KAKAO_LOCAL_MAP_URL = "https://dapi.kakao.com/v2/local/search/address.json";
     private static final String KAKAO_APP_KEY = "KakaoAK 71915571a3719081dfad3ecca9197242";
+    private static final int MAP_RADIUS = 1500;
     private static final NumberFormat formatter = new DecimalFormat("#0.00000");    
    
     public List<Stores> getStoresByAddress(String address, String extraAddress) {
@@ -75,14 +76,13 @@ public class StoresServiceImpl implements StoresService {
     }
     
     private String getURI(Map<String, String> userLocationMap) {
-        final int radius = 1500;
         Double lat = Double.parseDouble(userLocationMap.get("y"));
         Double lng = Double.parseDouble(userLocationMap.get("x"));
         
         StringBuilder sb = new StringBuilder();
         sb.append("?lat=").append(lat);
         sb.append("&lng=").append(lng);
-        sb.append("&m=").append(radius);
+        sb.append("&m=").append(MAP_RADIUS);
         
         return sb.toString();
     }
