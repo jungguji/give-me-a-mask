@@ -30,7 +30,7 @@ public class StoresServiceImpl implements StoresService {
     private static final NumberFormat formatter = new DecimalFormat("#0.00000");    
    
     public List<Stores> getStoresByAddress(String address, String extraAddress) {
-        Map<String, String> userLocationMap = getUserAddressLocation(address);
+        Map<String, Double> userLocationMap = getUserAddressLocation(address);
         
         String url = MASK_URL + getURI(userLocationMap);
         
@@ -47,8 +47,8 @@ public class StoresServiceImpl implements StoresService {
         sort(storeList, userLocationMap);
         
         Stores local = new Stores();
-        local.setLat(Double.parseDouble(userLocationMap.get("y")));
-        local.setLng(Double.parseDouble(userLocationMap.get("x")));
+        local.setLat(userLocationMap.get("y"));
+        local.setLng(userLocationMap.get("x"));
         
         storeList.add(0, local);
         
@@ -56,7 +56,7 @@ public class StoresServiceImpl implements StoresService {
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Map<String, String> getUserAddressLocation(String address) {
+    private Map<String, Double> getUserAddressLocation(String address) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType( MediaType.APPLICATION_JSON );
         headers.add(HttpHeaders.AUTHORIZATION, KAKAO_APP_KEY);
@@ -70,14 +70,14 @@ public class StoresServiceImpl implements StoresService {
         
         Map<String, List<Map>> map = test.getBody();
         
-        Map<String, String> document = map.get("documents").get(0);
+        Map<String, Double> document = map.get("documents").get(0);
         
         return document;
     }
     
-    private String getURI(Map<String, String> userLocationMap) {
-        Double lat = Double.parseDouble(userLocationMap.get("y"));
-        Double lng = Double.parseDouble(userLocationMap.get("x"));
+    private String getURI(Map<String, Double> userLocationMap) {
+        Double lat = userLocationMap.get("y");
+        Double lng = userLocationMap.get("x");
         
         StringBuilder sb = new StringBuilder();
         sb.append("?lat=").append(lat);
@@ -116,9 +116,9 @@ public class StoresServiceImpl implements StoresService {
         return storeList;
     }
     
-    private void sort(List<Stores> storeList, Map<String, String> userLocation) {
+    private void sort(List<Stores> storeList, Map<String, Double> userLocation) {
         for (Stores store : storeList) {
-            Double distance = Haversine.distance(Double.parseDouble(userLocation.get("y")), Double.parseDouble(userLocation.get("x")), store.getLat(), store.getLng());
+            Double distance = Haversine.distance(userLocation.get("y"), userLocation.get("x"), store.getLat(), store.getLng());
             
             store.setDistance(formatter.format(distance));
         }
