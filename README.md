@@ -6,6 +6,8 @@
 
 https://give-me-a-mask.herokuapp.com/
 
+* * *
+
 ## 사용 예
 1. 우편번호 찾기 버튼 클릭
 2. 주소 검색 후 선택
