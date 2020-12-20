@@ -3,7 +3,7 @@
     xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>마스크 내놔</title>
+    <title>Give me a mask</title>
     
     <link rel="stylesheet" th:href="@{/lib/jui/dist/ui.min.css}" />
     <link rel="stylesheet" th:href="@{/lib/jui/dist/ui-jennifer.min.css}" />
@@ -17,6 +17,55 @@
     <script th:src="@{/lib/jui-grid/dist/grid.js}"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c74ca833673f22749f45b47c2b30152c"></script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <style>
+    body {font-family: Arial, Helvetica, sans-serif;}
+
+    /* The Modal (background) */
+    .modal {
+        display: none;
+    /* Hidden by default */
+        position: fixed;
+    /* Stay in place */
+        z-index: 1;
+    /* Sit on top */
+       padding-top: 100px;
+    /* Location of the box */
+        left: 0;   top: 0;   width: 100%;
+    /* Full width */
+        height: 100%;
+    /* Full height */
+        overflow: auto;
+    /* Enable scroll if needed */
+        background-color: rgb(0,0,0);
+    /* Fallback color */
+        background-color: rgba(0,0,0,0.4);
+    /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover, .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    </style>
 </head>
 <body>
     <div id="notice" style="text-align: center">
@@ -96,12 +145,28 @@
             <td><!= created_at !></td>
         </tr>
     </script>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>마스크 보급이 정상화되어 현재 해당 서비스는 정상적인 이용이 불가능합니다.</p>
+            <p>마스크 보급은 정상화되었지만 코로나 상황은 해제되지 않았으므로 이용자 여러분 께서는 정부에서 실시하는 거리두기를 꼭 지켜주시길 당부드립니다.</p>
+            <p>그동안 Give me ma mask 서비스를 이용해주신 여러분에게 감사드립니다.</p>
+        </div>
+    </div>
     
     <script th:inline="javascript">
-    
+
+        let modal = document.getElementById("myModal");
         window.onload = function(){
+            modal.style.display = "block";
             drawGrid();
         }
+
+        document.getElementsByClassName("close")[0].onclick = function() {   modal.style.display = "none"; }
         
         var overlayArray = [];
         function search() {
